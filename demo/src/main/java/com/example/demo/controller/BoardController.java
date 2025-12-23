@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 
 @Controller
@@ -54,6 +54,25 @@ public class BoardController {
         PageHandler<BoardDTO> pageHandler = new PageHandler<>(list, pageNo);
 
         model.addAttribute("ph", pageHandler);
+    }
+
+    @GetMapping("/detail")
+    public void detail(@RequestParam("bno") long bno, Model model) {
+        BoardDTO boardDTO = boardService.getDetail(bno);
+        model.addAttribute("board", boardDTO);
+    }
+
+    @PostMapping("/modify")
+    public String modify(BoardDTO boardDTO,
+                         RedirectAttributes redirectAttributes) {
+        Long bno = boardService.modify(boardDTO);
+        redirectAttributes.addAttribute("bno", boardDTO.getBno());
+        return "redirect:/board/detail";
+    }
+    @GetMapping("/remove")
+    public String remove(@RequestParam("bno") long bno) {
+        boardService.remove(bno);
+        return "redirect:/board/list";
     }
 
 }
