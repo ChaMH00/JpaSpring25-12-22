@@ -1,10 +1,11 @@
 package com.example.demo.controller;
 
-
 import com.example.demo.dto.CommentDTO;
+import com.example.demo.handler.PageHandler;
 import com.example.demo.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,10 +37,22 @@ public class CommentController {
     }
 
     @GetMapping(value ="/list/{bno}",
+    /*@GetMapping(value = "/list/{bno}",
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<CommentDTO>> list(@PathVariable("bno") Long bno) {
         List<CommentDTO> list = commentService.getList(bno);
         return new ResponseEntity<List<CommentDTO>>(list, HttpStatus.OK);
+    }*/
+
+    @GetMapping(value = "/list/{bno}/{page}",
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PageHandler<CommentDTO>> list(@PathVariable("bno") Long bno,
+                                                 @PathVariable("page") int page){
+        Page<CommentDTO> list = commentService.getList(bno, page);
+
+        PageHandler<CommentDTO> pageHandler = new PageHandler<>(list, page);
+
+        return new ResponseEntity<PageHandler<CommentDTO>>(pageHandler, HttpStatus.OK);
     }
 
     @PutMapping(value= "/modify",
@@ -47,6 +60,15 @@ public class CommentController {
             produces = MediaType.TEXT_PLAIN_VALUE)
     public ResponseEntity<String> modify(@RequestBody CommentDTO commentDTO) {
         long cno = commentService.modify(commentDTO);
-        return new ResponseEntity<String> ("1", HttpStatus.OK);
+        return cno>0 ? new ResponseEntity<String>("1", HttpStatus.OK)
+                : new ResponseEntity<String>("0", HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @DeleteMapping("/remove/{cno}")
+    public ResponseEntity<String> remove(@PathVariable("cno") long cno){
+        commentService.remove(cno);
+        return cno>0 ? new ResponseEntity<String>("1", HttpStatus.OK)
+                : new ResponseEntity<String>("0", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

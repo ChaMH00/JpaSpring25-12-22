@@ -29,11 +29,21 @@ document.getElementById('cmtBtn').addEventListener('click', () => {
     })
 });
 
+// 화면에 출력하는 함수
+function spreadCommentList(bno, page=1){
+    commentListFromServer(bno, page).then(result =>{
 //화면에 출력하는 함수
 function spreadCommentList(bno) {
     commentListFromServer(bno).then(result => {
         console.log(result);
         const ul = document.getElementById('cmtListArea');
+        if(result.list.length > 0){
+            // 댓글이 있을 경우
+            if(page == 1) {
+                ul.innerHTML = ""; // 1page 만 값 비우고 새로 채우기
+            }
+            let li = '';
+            for(let comment of result.list){
         if(result.length > 0) {
             // 댓글이 있는 경우
             let li = '';
@@ -50,6 +60,22 @@ function spreadCommentList(bno) {
             }
             ul.innerHTML = li;
         } else {
+            ul.innerHTML += li;
+
+            // page 처리
+            const moreBtn = document.getElementById('moreBtn');
+
+            // 아직 리스트가 더 있다면... 버튼 표시
+            // result => list + pageHandler
+            // result => pageNo / totalPage
+            if(result.pageNo < result.totalPage){
+                moreBtn.style.visibility = "visible"; // 표시
+                moreBtn.dataset.page = page + 1;
+            }else{
+                moreBtn.style.visibility = "hidden"; // 숨김
+            }
+
+        }else{
             // 댓글이 없을 경우
             ul.innsertHTML = `<li class="list-group-item">Comment List Empty</li>`;
         }
@@ -59,6 +85,10 @@ function spreadCommentList(bno) {
 document.addEventListener('click', (e) => {
     if(e.target.id=='moreBtn') {
         // 더보기 버튼
+document.addEventListener('click',(e)=>{
+    if(e.target.id=='moreBtn'){
+        // 더보기 버튼 => 남아있는 게시글 5개를 더 출력 => 출력함수 호출(비동기 호출)
+        spreadCommentList(bnoValue, parseInt(e.target.dataset.page));
     }
     if(e.target.classList.contains('mod')) {
         // 수정 버튼 : 수정할 데이터(content, writer)를 찾아서 => modal 창에 띄우기
@@ -98,6 +128,15 @@ document.addEventListener('click', (e) => {
             document.querySelector('.btn-close').click();
         })
     }
+    if(e.target.classList.contains('del')){
+        // 삭제버튼
+        let li = e.target.closest('li');
+        removeCommentToServer(li.dataset.cno).then(result =>{
+            if(result == "1"){
+                alert("댓글삭제성공!");
+            }
+            spreadCommentList(bnoValue);
+        })
     if(e.target.classList.contains('del')) {
         // 삭제 버튼
     }
@@ -105,6 +144,23 @@ document.addEventListener('click', (e) => {
 
 
 // 비동기 데이터 함수
+// ------ 비동기 데이터 함수 --------
+// remove
+async function removeCommentToServer(cno) {
+    try {
+        const url = "/comment/remove/"+cno;
+        const config ={
+            method: 'delete',
+        }
+        const resp = await fetch(url, config);
+        const result = resp.text();
+        return result;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+
 // modify
 async function updateCommentToServer(modData) {
     try {
@@ -116,6 +172,7 @@ async function updateCommentToServer(modData) {
             },
             body: JSON.stringify(modData)
         }
+
         const resp = await fetch(url, config);
         const result = await resp.text();
         return result;
@@ -123,10 +180,12 @@ async function updateCommentToServer(modData) {
         console.log(error);
     }
 }
+
 // list
-async function commentListFromServer(bno) {
+async function commentListFromServer(bno, page) {
     try {
         const resp = await fetch('/comment/list/'+bno);
+        const resp = await fetch("/comment/list/"+bno+"/"+page);
         const result = await resp.json();
         return result;
     } catch (error) {
@@ -136,17 +195,18 @@ async function commentListFromServer(bno) {
 // post
 async function postCommentToServer(cmtData) {
     try {
-        const url = "/comment/post";
-        const config = {
-            method: 'post',
-            headers: {
-                'content-type' : 'application/json; charset=UTF-8'
-            },
-            body:JSON.stringify(cmtData)
-        };
-        const resp = await fetch(url, config);
-        const result = await resp.text();
-        return result;
+     const url = "/comment/post";   
+     const config = {
+        method: 'post',
+        headers: {
+            'content-type':'application/json; charset=utf-8'
+        },
+        body:JSON.stringify(cmtData)
+     };
+
+     const resp = await fetch(url, config);
+     const result = await resp.text();
+     return result;
     } catch (error) {
         console.log(error);
     }
