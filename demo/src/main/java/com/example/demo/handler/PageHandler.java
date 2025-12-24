@@ -10,6 +10,7 @@ import java.util.List;
 @ToString
 @Getter
 @Setter
+@ToString
 public class PageHandler<T> {
     // 생성자
     private int startPage;
@@ -23,6 +24,8 @@ public class PageHandler<T> {
 
 
     public PageHandler(Page<T> list, int pageNo){
+    // 생성자
+    public PageHandler(Page<T>list, int pageNo){
         this.list = list.getContent();
         this.pageNo = pageNo;
         this.totalPage = list.getTotalPages();

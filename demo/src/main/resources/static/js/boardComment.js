@@ -59,21 +59,21 @@ function spreadCommentList(bno) {
 document.addEventListener('click', (e) => {
     if(e.target.id=='moreBtn') {
         // 더보기 버튼
-    } 
+    }
     if(e.target.classList.contains('mod')) {
         // 수정 버튼 : 수정할 데이터(content, writer)를 찾아서 => modal 창에 띄우기
         // nextSibling : 같은 부모의 다음 형제 찾기
         let li = e.target.closest('li'); // 내 버튼이 속해있는 li 가져오기
 
         // return nextNode => nodeValue 텍스트만 분리
-        let cmtText = li.querySelector('.fw-bold').nextSibling; 
+        let cmtText = li.querySelector('.fw-bold').nextSibling;
         let cmtWriter = li.querySelector('.fw-bold').innerText;
         let cno = li.dataset.cno;
 
         document.getElementById('cmtWriterMod').innerHTML =
         `no.${cno} <b>${cmtWriter}</b>`;
         document.getElementById('cmtTextMod').value = cmtText.nodeValue;
-        
+
         // cmtModBtn => data-cno="" 속성 추가
         document.getElementById('cmtModBtn').setAttribute('data-cno', cno);
     }
@@ -150,4 +150,4 @@ async function postCommentToServer(cmtData) {
     } catch (error) {
         console.log(error);
     }
-}    
+}

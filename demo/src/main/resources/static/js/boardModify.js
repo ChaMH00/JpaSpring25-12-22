@@ -4,7 +4,7 @@ console.log("boardModify.js in");
 document.getElementById('modBtn').addEventListener('click', () => {
     document.getElementById('t').readOnly = false;
     document.getElementById('c').readOnly = false;
-    
+
     // Form 태그의 submit 역할을 하는 버튼 생성
     // <button type="submit" class="btn btn-success" id="regBtn">submit</button>
     let regBtn = document.createElement('button'); // <button></button>
