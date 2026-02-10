@@ -1,0 +1,12 @@
+/build/
+/.gradle/
+/out/
+*.log
+*.iml
+.idea/
+/target/
+/node_modules/
+application.properties
+application.yml
+/demo/src/main/generated/
+**/src/main/generated/
